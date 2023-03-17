@@ -1,0 +1,100 @@
+#Python Socket Programlama
+Kaynak : https://docs.python.org/3/library/socket.html
+Kaynak : https://docs.python.org/3/howto/sockets.html
+Kaynak : https://docs.python.org/3/whatsnew/2.7.html
+Ayrica Bakiniz : https://docs.python.org/3/library/socketserver.html (Daha sonra bak!)
+
+##Server
+import socket
+
+server = socket.socket()
+s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) #AF_INET IPv4 icin old.Ikinci paramatre TCP veya UDP old belirtmek icin.
+s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) #UDP icin DGRAM , TCP icin STREAM
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s: #Dosya acar gibi acabiliyoruz.
+    conn, addr = s.accept() #Artik s. olarak yapcaz as s dedgimiz icin.
+
+IP = 'localhost'
+IP = '' ## Symbolic name meaning all available interfaces.Mevcut tum arayuzler anlamina gelen semboli isim
+hostName = socket.gethostname() #Hostname otomatik almak icin
+IP = socket.hostbyname(hostName) #IP adresini host name ile almak icin
+IP = socket.getservbyport(port) #IP adtesini port ile almak icin
+socket.getservbyname(servicename[, protocolname]) #Bu sekilde bir kullanimi da var prtocol ismi verdigimizde sadece o protocol bakcak.
+#Diger turlu herhangi bir protocol ile
+port = 77777 #https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
+#OverflowError: bind(): port must be 0-65535.
+server.bind((IP,port)) #Socketi adrese baglamak icin
+#Iki parantezin bir tuple tipi icin cunku bind tek arguman aliyor.
+server.listen() #Server max kac kisinin baglanacagini belirtmek icin.Bos birakilir ise sonsuz olur.
+conn, adress = server.accept() #Baglantilari kabul etmek icin.Return degerini almak icin bu sekilde yaptik.
+'''
+Bir bağlantıyı kabul edin. Soket bir adrese bağlı olmalı ve bağlantıları dinlemelidir. Dönüş değeri, conn'un bağlantıyla ilgili verileri göndermek ve almak için kullanılabilen yeni bir soket nesnesi olduğu bir çifttir (conn, adres) ve adres, bağlantının diğer ucundaki sokete bağlı adrestir. Yeni oluşturulan yuva devralınamaz. Sürüm 3.4'te değiştirildi: Yuva artık devralınamaz. Sürüm 3.5'te değiştirildi: Sistem çağrısı kesilirse ve sinyal işleyicisi bir özel durum oluşturmazsa, yöntem artık bir InterruptedError özel durumu oluşturmak yerine sistem çağrısını yeniden dener (gerekçe için PEP 475'e bakın).
+'''
+print(adress)
+
+if conn: #Baglanti oldugunda islem yapmak icin kontrol ettik.
+    conn.send("Bu plain text".encode("utf-8")) #String gondermek icin encode etmemiz lazim yoksa string direkt gonderemeiyor socket uzerinden.
+    #utf-8 ekliyebiliriz bos parametre olarakta olabilir.
+    #server.sendall(msg.encode("utf-8")) bu islem ile gonderim yapilmis.Farkina bak.
+    conn.close()
+
+#socket.sendto(bytes, address) bu yontem ile belirli bir adrese gonderim sagliyor sanirim
+#File icin
+socket.sendfile(file, offset=0, count=None) #Dosya gondermek icin
+#file must be a regular file object opened in binary mode. yani her dosyaya izin vermiyebilir fakat deneyebiliriz.
+#The socket must be of SOCK_STREAM type. Non-blocking sockets are not supported. 
+#socket.makefile(mode='r', buffering=None, *, encoding=None, errors=None, newline=None) #Dosya olusturmak icin sanirim
+
+#Mesaj gonderimini fakli sekilde yapilabilir.
+msg_plain = "Bu mesaj plain textir."
+server.send(bytes(msg_plain,"utf-8")) #Byte ceviriyoruz.Parametrelerde utf-8 ile Turkce karakterleri destekleyecek sekilde yapiyoruz.
+#server.send() yapda conn.send() olacak.Bunu deniyecegim hangisin dogru old.
+#Boyle bir methodda var socket.sendmsg(buffers[, ancdata[, flags[, address]]])
+
+
+server.close()
+
+##Client
+import socket
+client = socket.socket()
+IP = 'localhost'
+port = 77777
+client.connect((IP,port)) #Iki parantezin bir tuple tipi icin cunku bind tek arguman aliyor.
+print("Baglanti saglandi")
+
+#s.connect(("www.python.org", 80)) Boyle bir adrese http 80 port ile baglanabiliriz.
+
+msg = client.recv(1024) #1024 alacagimiz limiti vermek icin yuksek bir rakamdir.MB veya GB degeri degildir.
+print(msg.decode("utf-8")) #Mesaji cozebilmek icin decode yaptik.Decode parametresiz de calistirabiliriz utf-8 ekliyebiliriz.
+
+client.close()
+
+
+socket.shutdown(how) #Shut down one or both halves of the connection. 
+#If how is SHUT_RD, further receives are disallowed. If how is SHUT_WR, further sends are disallowed. If how is SHUT_RDWR, further sends and receives are disallowed.
+sys.exit(1) #Yine kapatmak icin
+
+'''
+socket.family
+
+    The socket family.
+
+socket.type
+
+    The socket type.
+
+socket.proto
+
+    The socket protocol.
+
+'''
+
+'''Doc boyle bir ornekte var.
+while True:
+    # accept connections from outside
+    (clientsocket, address) = serversocket.accept()
+    # now do something with the clientsocket
+    # in this case, we'll pretend this is a threaded server
+    ct = client_thread(clientsocket)
+    ct.run()
+
+'''

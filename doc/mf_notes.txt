@@ -1,0 +1,74 @@
+#Mininet
+sudo mn #minineti calistirmak icin
+sudo mn --controller=remote, ip=111.111.111.111 #Uzak bir controller ile mininet calistirmak icin
+sudo mn --wait #Bekleyip calismasini saglamak icin.
+help
+sudo mn --help #Help bu sekilde ulasabilirsin.
+exit #Kapatabiliriz.
+nodes #nodelari gormek icin
+links #Baglantilari gosteriyor.
+ports #Portalari gosteriyor.
+intfs #Interfaceleri gormek icin 
+#h : host , c: controller , s: switch
+dump #Daha detayli gorebiliriz.
+pingall #Sistemin tamamina ping atmak icin
+pingallfull #Detayli ping islemini gormek icin
+h1 ping h2 #Iki host arasindaki ping gormek icin
+h1 ping h2 -c 4 #ping tekrar sayisini belirtmek icin
+#Ilk puing degerinin uzun olmasi controller ile gidecegi yolu ogrenmesi daha sonra direkt switch uzerinden gitmesi
+iperf #bandwidth test edebiliriz TCP icin
+iperfudp #Yukaridaki islemin aynisi UDP icin
+sudo mn --link tc,bw=10,delay=10ms #bw=bandwidth
+sudo mn --custom topo-2sw-2host.py --topo=mytopo #custom klasorunde olan python dosyasina benzer sekilde custom topoloji calistrilabilir.
+
+##Parametreler
+wait #Wait until all switches have connected to a controller
+source #Read commands from an input file.Usage: source <file>
+gterm h1 #gnome terminal
+intfs #List interfaces.
+iperfudp #Simple iperf UDP test between two (optionally specified) hosts.Usage: iperfudp bw node1 node2
+iperf #Simple iperf TCP test between two (optionally specified) hosts.Usage: iperf node1 node2
+pingpair #Ping between first two hosts, useful for testing.
+pingpairfull #Detayli gormek icin
+px #Execute a Python statement.Node names may be used, e.g.: px print h1.cmd('ls')
+py #Evaluate a Python expression.Node names may be used, e.g.: py h1.cmd('ls')
+sh #Run an external shell command.Usage: sh [cmd args]
+switch #Starts or stops a switch
+switch r3 stop
+switch r3 start
+
+sudo mn --topo single,4 #Single tek switch'e bagliyoruz.
+sudo mn --topo reversed,2 #Single gibi tek switch var fakat ters sirayla olusturur.
+sudo mn --mac --topo linear,4 #Buna benzer sekillerde topoloji olusturulabilir.
+#--mac : automatically set host MACs
+sudo mn --topo linear,3,1 #Host ve switch sayilarini belirtiyor ama biraz degiisik olusturuyor.
+sudo mn --topo tree,3,2 #Agac yapisi ile olusturmak icin
+
+##
+-c means client mode.
+-i means reporting interval
+-t means test duration in seconds
+-b means bandwidth 10m means 10Mbps
+-P means parallel connections
+##
+
+dpctl show #Yukaridak topoloji olusturduktan sonra detay gormek icin
+dpctl dump-desc
+dpctl dump-ports #Portlarin bilgilerini veriyor.
+dpctl dump-ports-desc
+dpctl dump-aggregate
+dpctl dump-flows
+dpctl dump-tables
+
+h1 python -m SimpleHTTPServer 80 &
+h2 wget -o - h1
+h1 kill %python
+python -m SimpleHTTPServer 80 & #h1 xtermde yazilacak
+wget -o - <ip adress> #h2 xtermde yazilacak
+
+sudo mn --custom topo.py --topo mytopo --mac --switch ovsk --controller=remote,ip=10.02.15,port=6653 --link=tc
+
+#Floodlight
+java -jar target/floodlight.jar
+10.02.15:8080/ui/index.html
+
